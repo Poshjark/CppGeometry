@@ -1,6 +1,7 @@
 #include "geometry.h"
 #include <array>
 
+#define MDEBUG
 
 
 Point::Point(const double x_input,const double y_input) : x(x_input), y(y_input){
@@ -41,11 +42,11 @@ const bool Point::operator==(const Point& other) const{
     return this->x== other.getX() && this->y== other.getY();
 }
 
-void Point::resize(){
+void Point::resize(int){
 
 }
 
-void Point::scale(){
+void Point::scale(int){
 
 }
 
@@ -54,6 +55,9 @@ void Point::rotate(int degree){
 }
 
 Point::~Point(){
+#ifdef MDEBUG
+    std::cout << "Point destructor!\n";
+#endif
 }
 
 Vector::Vector() : start(new Point()), end(new Point()){
@@ -139,11 +143,11 @@ void Vector::move_to(double x_new, double y_new){
     this->start->move_to(x_new, y_new);
 }
 
-void Vector::resize(){
+void Vector::resize(int){
 
 }
 
-void Vector::scale(){
+void Vector::scale(int){
 
 }
 
@@ -215,7 +219,7 @@ Point Vector::make_normal(){
     std::cout << "Quarter is " << quarter << std::endl;
     if (quarter != 0){
 
-        std::array<const int,5> quantifier {0,0,1,-1,0};
+        std::array<const int,5> quantifier {0,0,2,-2,0};
         this->angle = std::atan((this->end->getY() - this->start->getY()) / (this->end->getX() - this->start->getX())) * 180 / M_PI;
         this->angle += 90 * quantifier[quarter];
         x = std::cos(this->angle * M_PI / 180);
@@ -232,4 +236,7 @@ std::ostream& operator<<(std::ostream & out, const Point& point){
 std::ostream& operator<<(std::ostream &out, const Vector& vector){
     std::cout << "Start - " << *(vector.start) << "\tend - " << *(vector.end) << std::endl;
     return out;
+}
+std::ostream& operator<<(std::ostream& out, const GeometryObject& object){
+    return object.print(out);
 }
