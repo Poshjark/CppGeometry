@@ -1,11 +1,13 @@
 #include "geometry.h"
 #include <array>
 
-#define MDEBUG
+
 
 
 Point::Point(const double x_input,const double y_input) : x(x_input), y(y_input){
+#ifdef MDEBUG
     std::cout << "Point default constructor!\n";
+#endif
 }
 
 Point::Point(Point& other) : x(other.x), y(other.y){
@@ -13,11 +15,15 @@ Point::Point(Point& other) : x(other.x), y(other.y){
 }
 
 Point::Point(const Point& other) : x(other.x), y(other.y) {
+#ifdef MDEBUG
     std::cout << "Point copy constructor!\n";
+#endif
 }
 
 Point::Point (Point&& other) noexcept : x(other.x), y(other.y) {
+#ifdef MDEBUG
     std::cout << "Point move constructor!!\n";
+#endif
 }
 
 const double Point::getX() const{
@@ -66,7 +72,9 @@ Vector::Vector() : start(new Point()), end(new Point()){
 }
 
 Vector::Vector(Point* start_input, Point* end_input){
+#ifdef MDEBUG
     std::cout << "Vector pointers cosntructor!\n";
+#endif
     this->start = start_input;
     this->end = end_input;
     if(this->start->getX() != this->end->getX()){
@@ -116,7 +124,9 @@ Vector::Vector(const std::pair<std::pair<double,double>,std::pair<double,double>
 Vector::Vector(std::pair<std::pair<double,double>,std::pair<double,double>>&& args) :
     start(new Point(args.first.first, args.first.second)),
     end(new Point(args.second.first, args.second.second)){
+#ifdef MDEBUG
     std::cout << "Vector move constructor from pairs!\n";
+#endif
     if(this->start->getX() != this->end->getX()){
         this->k = (this->start->getY() - this->end->getY()) / (this->start->getX() - this->end->getX());
     }
@@ -169,14 +179,14 @@ Point Vector::make_normal(){
     double y = 0;
     if(this->start->getX() == this->end->getX()){
         if(this->start->getY() > this->end->getY()){
-            this->angle = -M_PI_2;
+            this->angle = -90;
             k = INFINITY;
             b = 0;
             y = -1;
 
         }
         else if(this->start->getY() < this->end->getY()){
-            this->angle = M_PI_2;
+            this->angle = 90;
             k = INFINITY;
             b = 0;
             y = 1;
@@ -194,7 +204,7 @@ Point Vector::make_normal(){
             x = 1;
         }
         else if(this->start->getX() > this->end->getX()){
-            this->angle = M_PI;
+            this->angle = 180;
             std::cout<< "FLAG\n";
             x= -1;
 
