@@ -4,7 +4,7 @@
 
 
 
-Point::Point(const double x_input,const double y_input) : x(x_input), y(y_input){
+Point::Point(const coord_t x_input,const coord_t y_input) : x(x_input), y(y_input){
 #ifdef MDEBUG
     std::cout << "Point default constructor!\n";
 #endif
@@ -26,20 +26,20 @@ Point::Point (Point&& other) noexcept : x(other.x), y(other.y) {
 #endif
 }
 
-const double Point::getX() const{
+const coord_t Point::getX() const{
     return this->x;
 }
 
-const double Point::getY() const{
+const coord_t Point::getY() const{
     return this->y;
 }
 
-void Point::move_to(double x_new, double y_new){
+void Point::move_to(coord_t x_new, coord_t y_new){
     this->x= x_new;
     this->y= y_new;
 }
 
-void Point::shift(double x_shift, double y_shift){
+void Point::shift(coord_t x_shift, coord_t y_shift){
     this->x+= x_shift;
     this->y+= y_shift;
 }
@@ -48,15 +48,15 @@ const bool Point::operator==(const Point& other) const{
     return this->x== other.getX() && this->y== other.getY();
 }
 
-void Point::resize(int){
+void Point::resize(coord_t){
 
 }
 
-void Point::scale(int){
+void Point::scale(coord_t){
 
 }
 
-void Point::rotate(int degree){
+void Point::rotate(coord_t degree){
 
 }
 
@@ -108,7 +108,7 @@ Vector::Vector(Point&& start_input, Point&& end_input) :
     this->b = this->start->getY() - start->getX() * this->k;
 }
 
-Vector::Vector(const std::pair<std::pair<double,double>,std::pair<double,double>>& args) :
+Vector::Vector(const std::pair<std::pair<coord_t,coord_t>,std::pair<coord_t,coord_t>>& args) :
     start(new Point(args.first.first, args.first.second)),
     end(new Point(args.second.first, args.second.second)){
     if(this->start->getX() != this->end->getX()){
@@ -121,7 +121,7 @@ Vector::Vector(const std::pair<std::pair<double,double>,std::pair<double,double>
 }
 
 
-Vector::Vector(std::pair<std::pair<double,double>,std::pair<double,double>>&& args) :
+Vector::Vector(std::pair<std::pair<coord_t,coord_t>,std::pair<coord_t,coord_t>>&& args) :
     start(new Point(args.first.first, args.first.second)),
     end(new Point(args.second.first, args.second.second)){
 #ifdef MDEBUG
@@ -143,25 +143,25 @@ Vector::~Vector() {
     delete end;
 }
 
-void Vector::shift(double x_shift, double y_shift){
+void Vector::shift(coord_t x_shift, coord_t y_shift){
     this->start->shift(x_shift,y_shift);
     this->end->shift(x_shift,y_shift);
 }
 
-void Vector::move_to(double x_new, double y_new){
+void Vector::move_to(coord_t x_new, coord_t y_new){
     this->end->move_to(this->start->getX() + x_new, this->start->getY() + y_new);
     this->start->move_to(x_new, y_new);
 }
 
-void Vector::resize(int){
+void Vector::resize(coord_t){
 
 }
 
-void Vector::scale(int){
+void Vector::scale(coord_t){
 
 }
 
-void Vector::rotate(int degree){
+void Vector::rotate(coord_t degree){
 
 }
 
@@ -175,8 +175,8 @@ void Vector::coeff_b_recalculate(){
 Point Vector::make_normal(){
     const std::array<int,5> quarters = {1,1,1,1,1};
     int quarter = 0;
-    double x = 0;
-    double y = 0;
+    coord_t x = 0;
+    coord_t y = 0;
     if(this->start->getX() == this->end->getX()){
         if(this->start->getY() > this->end->getY()){
             this->angle = -90;
@@ -238,15 +238,62 @@ Point Vector::make_normal(){
     return {x,y};
 }
 
+std::pair<Point,bool> Vector::find_cross(VectorObject*) const{
+    return {{0,0},0};
+}
+
+void Vector::equidistant(coord_t, bool direct){
+    int sign = direct ? 1 : -1;
+    this->start->shift(this->normal->getX() * sign, this->normal->getY() * sign);
+    this->end->shift(this->normal->getX() * sign, this->normal->getY() * sign);
+}
+
 std::ostream& operator<<(std::ostream & out, const Point& point){
-    std:: cout << "(" << point.getX() << ";" << point.getY() << ")";
+    out << "(" << point.getX() << ";" << point.getY() << ")";
     return out;
 }
 
 std::ostream& operator<<(std::ostream &out, const Vector& vector){
-    std::cout << "Start - " << *(vector.start) << "\tend - " << *(vector.end) << std::endl;
+    out << "Start - " << *(vector.start) << "\tend - " << *(vector.end) << std::endl;
     return out;
 }
 std::ostream& operator<<(std::ostream& out, const GeometryObject& object){
     return object.print(out);
+}
+
+
+void Polyline::move_to(coord_t x_new, coord_t y_new){
+
+}
+
+void Polyline::shift(coord_t, coord_t){
+
+}
+
+void Polyline::scale(coord_t){
+
+}
+
+void::Polyline::resize(coord_t){
+
+}
+
+void Polyline::rotate(coord_t){
+
+}
+
+Polyline::Polyline(std::initializer_list<std::pair<coord_t,coord_t>>){
+
+}
+
+std::ostream& Polyline::print(std::ostream& out) const{
+    return out;
+}
+
+void Polyline::equidistant(coord_t,bool direct){
+
+}
+
+std::pair<Point,bool> Polyline::find_cross(VectorObject*) const{
+    return {{0,0},0};
 }
