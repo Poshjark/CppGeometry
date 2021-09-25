@@ -2,7 +2,6 @@
 #define MDEBUG
 
 
-
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
@@ -18,9 +17,9 @@ class GeometryObject{
 public:
     virtual void move_to(coord_t x_new,coord_t y_new) = 0;
     virtual void shift(coord_t x_shift=0, coord_t y_shift=0) = 0;
-    virtual void scale(coord_t) = 0;
-    virtual void resize(coord_t) = 0;
-    virtual void rotate(coord_t) = 0;
+    virtual void scale(coord_t,std::pair<coord_t,coord_t>) = 0;
+    virtual void resize(coord_t length,coord_t width,std::pair<coord_t,coord_t>) = 0;
+    virtual void rotate(coord_t,std::pair<coord_t,coord_t>) = 0;
     virtual std::ostream& print(std::ostream& out = std::cout) const = 0;
     virtual ~GeometryObject(){};
 };
@@ -31,7 +30,10 @@ public:
 #else
 private:
 #endif
+
+#ifdef RENDER
     bool is_visible;
+#endif
     coord_t x, y;
 public:
     Point(coord_t x=0, coord_t y=0);
@@ -48,9 +50,9 @@ public:
     void move_to(coord_t x_new, coord_t y_new) override;
     void shift(coord_t, coord_t) override ;
 
-    void scale(coord_t) override;
-    void resize(coord_t) override;
-    void rotate(coord_t) override;
+    void scale(double,std::pair<coord_t,coord_t>) override;
+    void resize(coord_t length,coord_t width,std::pair<coord_t,coord_t>) override;
+    void rotate(double,std::pair<coord_t,coord_t>) override;
 
     Point& operator=(const Point& other){
         this->x = other.x;
@@ -88,61 +90,63 @@ public:
 
 
 
-class Vector : public VectorObject{
 
-
-#ifdef MDEBUG
-public:
-#else
-private:
-#endif
-    Point* start;
-    Point* end;
-    Point* normal;
-    coord_t angle;
-    coord_t k;
-    coord_t b;
-    Point make_normal();
-    void coeff_b_recalculate();
-
-public:
-    Vector();
-    Vector(Point* start_input, Point* end_input);
-    Vector(const Point& start_input,const Point& end_input);
-    Vector(Point&& start_input, Point&& end_input);
-    explicit Vector(const std::pair<std::pair<coord_t,coord_t>,std::pair<coord_t,coord_t>>& args) ;
-    explicit Vector(std::pair<std::pair<coord_t,coord_t>,std::pair<coord_t,coord_t>>&& args) ;
-    ~Vector();
-
-    friend std::ostream& operator<< (std::ostream &out, const Vector& vector);
-
-
-
-    void move_to(coord_t x_new, coord_t y_new)override ;
-    void shift(coord_t, coord_t)override ;
-
-    void scale(coord_t) override;
-    void resize(coord_t) override;
-    void rotate(coord_t) override;
-
-    void equidistant(coord_t,bool direct = true) override;
-    std::pair<Point,bool> find_cross(VectorObject*) const override;
-
-
-    const coord_t get_angle(const char mode = 'd');
-
-    bool operator==(const Vector& other) const;
-
-    std::ostream& print(std::ostream& out = std::cout) const override{
-        out << *this;
-        return out;
-    }
-};
 
 class Polyline : public VectorObject{
 private:
-    std::vector<Point*> data;
     bool closed;
+
+    class Vector : public VectorObject{
+
+
+    #ifdef MDEBUG
+    public:
+    #else
+    private:
+    #endif
+        Point* start;
+        Point* end;
+        Point* normal;
+        double angle;
+        double k;
+        double b;
+        Point make_normal();
+        void coeff_b_recalculate();
+
+    public:
+        Vector();
+        Vector(Point* start_input, Point* end_input);
+        Vector(const Point& start_input,const Point& end_input);
+        Vector(Point&& start_input, Point&& end_input);
+        explicit Vector(const std::pair<std::pair<coord_t,coord_t>,std::pair<coord_t,coord_t>>& args) ;
+        explicit Vector(std::pair<std::pair<coord_t,coord_t>,std::pair<coord_t,coord_t>>&& args) ;
+        ~Vector();
+
+        friend std::ostream& operator<< (std::ostream &out, const Vector& vector);
+
+
+
+        void move_to(coord_t x_new, coord_t y_new)override ;
+        void shift(coord_t, coord_t)override ;
+
+        void scale(coord_t,std::pair<coord_t,coord_t>) override;
+        void resize(coord_t length,coord_t width,std::pair<coord_t,coord_t>) override;
+        void rotate(coord_t,std::pair<coord_t,coord_t>) override;
+
+        void equidistant(coord_t,bool direct = true) override;
+        std::pair<Point,bool> find_cross(VectorObject*) const override;
+
+
+        const coord_t get_angle(const char mode = 'd');
+
+        bool operator==(const Vector& other) const;
+
+        std::ostream& print(std::ostream& out = std::cout) const override{
+            out << *this;
+            return out;
+        }
+    };
+
 public:
 
     Polyline();
@@ -151,13 +155,13 @@ public:
 
     void move_to(coord_t,coord_t) override;
     void shift(coord_t,coord_t) override;
-    void scale(coord_t) override;
-    void resize(coord_t) override;
-    void rotate(coord_t) override;
+    void scale(coord_t,std::pair<coord_t,coord_t>) override;
+    void resize(coord_t length,coord_t width,std::pair<coord_t,coord_t>) override;
+    void rotate(coord_t,std::pair<coord_t,coord_t>) override;
 
     void equidistant(coord_t,bool direct = true) override;
     std::pair<Point,bool> find_cross(VectorObject*) const override;
-
+    friend std::ostream& operator<< (std::ostream &out, const Vector& vector);
     std::ostream& print(std::ostream& out = std::cout) const override;
 };
 

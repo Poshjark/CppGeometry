@@ -11,18 +11,20 @@ Point::Point(const coord_t x_input,const coord_t y_input) : x(x_input), y(y_inpu
 }
 
 Point::Point(Point& other) : x(other.x), y(other.y){
-
+#ifdef MDEBUG
+    std::cout << "Ref Point copy constructor!\n";
+#endif
 }
 
 Point::Point(const Point& other) : x(other.x), y(other.y) {
 #ifdef MDEBUG
-    std::cout << "Point copy constructor!\n";
+    std::cout << "Const ref Point copy constructor!\n";
 #endif
 }
 
 Point::Point (Point&& other) noexcept : x(other.x), y(other.y) {
 #ifdef MDEBUG
-    std::cout << "Point move constructor!!\n";
+    std::cout << "Point move constructor!\n";
 #endif
 }
 
@@ -48,15 +50,15 @@ const bool Point::operator==(const Point& other) const{
     return this->x== other.getX() && this->y== other.getY();
 }
 
-void Point::resize(coord_t){
+void Point::resize(coord_t length,coord_t width,std::pair<coord_t,coord_t> center){
 
 }
 
-void Point::scale(coord_t){
+void Point::scale(double scale_,std::pair<coord_t,coord_t> center){
 
 }
 
-void Point::rotate(coord_t degree){
+void Point::rotate(double degree,std::pair<coord_t,coord_t> center){
 
 }
 
@@ -66,12 +68,15 @@ Point::~Point(){
 #endif
 }
 
-Vector::Vector() : start(new Point()), end(new Point()){
+Polyline::Vector::Vector() : start(new Point()), end(new Point()){
     this->k = 1;
     this->b = 0;
 }
 
-Vector::Vector(Point* start_input, Point* end_input){
+
+// Add function coeffs_recalculate merging it with coeff_b_recalculate
+
+Polyline::Vector::Vector(Point* start_input, Point* end_input){
 #ifdef MDEBUG
     std::cout << "Vector pointers cosntructor!\n";
 #endif
@@ -86,7 +91,9 @@ Vector::Vector(Point* start_input, Point* end_input){
     this->b = this->start->getY() - start->getX() * this->k;
 }
 
-Vector::Vector(const Point& start_input,const Point& end_input) : start(new Point(start_input)), end(new Point(end_input)) {
+
+// coeffs_recalculate add instead of if else
+Polyline::Vector::Vector(const Point& start_input,const Point& end_input) : start(new Point(start_input)), end(new Point(end_input)) {
     if(this->start->getX() != this->end->getX()){
         this->k = (this->start->getY() - this->end->getY()) / (this->start->getX() - this->end->getX());
     }
@@ -96,7 +103,7 @@ Vector::Vector(const Point& start_input,const Point& end_input) : start(new Poin
     this->b = this->start->getY() - start->getX() * this->k;
 }
 
-Vector::Vector(Point&& start_input, Point&& end_input) :
+Polyline::Vector::Vector(Point&& start_input, Point&& end_input) :
     start(new Point(std::move(start_input))),
     end(new Point(std::move(end_input))){
     if(this->start->getX() != this->end->getX()){
@@ -108,7 +115,8 @@ Vector::Vector(Point&& start_input, Point&& end_input) :
     this->b = this->start->getY() - start->getX() * this->k;
 }
 
-Vector::Vector(const std::pair<std::pair<coord_t,coord_t>,std::pair<coord_t,coord_t>>& args) :
+// coeffs_recalculate add instead of if else
+Polyline::Vector::Vector(const std::pair<std::pair<coord_t,coord_t>,std::pair<coord_t,coord_t>>& args) :
     start(new Point(args.first.first, args.first.second)),
     end(new Point(args.second.first, args.second.second)){
     if(this->start->getX() != this->end->getX()){
@@ -120,8 +128,8 @@ Vector::Vector(const std::pair<std::pair<coord_t,coord_t>,std::pair<coord_t,coor
     this->b = this->start->getY() - start->getX() * this->k;
 }
 
-
-Vector::Vector(std::pair<std::pair<coord_t,coord_t>,std::pair<coord_t,coord_t>>&& args) :
+// coeffs_recalculate add instead of if else
+Polyline::Vector::Vector(std::pair<std::pair<coord_t,coord_t>,std::pair<coord_t,coord_t>>&& args) :
     start(new Point(args.first.first, args.first.second)),
     end(new Point(args.second.first, args.second.second)){
 #ifdef MDEBUG
@@ -138,41 +146,41 @@ Vector::Vector(std::pair<std::pair<coord_t,coord_t>,std::pair<coord_t,coord_t>>&
 
 
 
-Vector::~Vector() {
+Polyline::Vector::~Vector() {
     delete start;
     delete end;
 }
 
-void Vector::shift(coord_t x_shift, coord_t y_shift){
+void Polyline::Vector::shift(coord_t x_shift, coord_t y_shift){
     this->start->shift(x_shift,y_shift);
     this->end->shift(x_shift,y_shift);
 }
 
-void Vector::move_to(coord_t x_new, coord_t y_new){
+void Polyline::Vector::move_to(coord_t x_new, coord_t y_new){
     this->end->move_to(this->start->getX() + x_new, this->start->getY() + y_new);
     this->start->move_to(x_new, y_new);
 }
 
-void Vector::resize(coord_t){
+void Polyline::Vector::resize(coord_t length,coord_t width,std::pair<coord_t,coord_t> center){
 
 }
 
-void Vector::scale(coord_t){
+void Polyline::Vector::scale(coord_t,std::pair<coord_t,coord_t> center){
 
 }
 
-void Vector::rotate(coord_t degree){
+void Polyline::Vector::rotate(coord_t,std::pair<coord_t,coord_t> center){
 
 }
 
-void Vector::coeff_b_recalculate(){
+void Polyline::Vector::coeff_b_recalculate(){
     if(this->angle != INFINITY){
         this->b = this->start->getY() - start->getX() * this->k;
     }
 
 }
 
-Point Vector::make_normal(){
+Point Polyline::Vector::make_normal(){
     const std::array<int,5> quarters = {1,1,1,1,1};
     int quarter = 0;
     coord_t x = 0;
@@ -238,11 +246,11 @@ Point Vector::make_normal(){
     return {x,y};
 }
 
-std::pair<Point,bool> Vector::find_cross(VectorObject*) const{
+std::pair<Point,bool> Polyline::Vector::find_cross(VectorObject*) const{
     return {{0,0},0};
 }
 
-void Vector::equidistant(coord_t, bool direct){
+void Polyline::Vector::equidistant(coord_t, bool direct){
     int sign = direct ? 1 : -1;
     this->start->shift(this->normal->getX() * sign, this->normal->getY() * sign);
     this->end->shift(this->normal->getX() * sign, this->normal->getY() * sign);
@@ -253,7 +261,7 @@ std::ostream& operator<<(std::ostream & out, const Point& point){
     return out;
 }
 
-std::ostream& operator<<(std::ostream &out, const Vector& vector){
+std::ostream& operator<<(std::ostream &out, const Polyline::Vector& vector){
     out << "Start - " << *(vector.start) << "\tend - " << *(vector.end) << std::endl;
     return out;
 }
@@ -270,15 +278,15 @@ void Polyline::shift(coord_t, coord_t){
 
 }
 
-void Polyline::scale(coord_t){
+void Polyline::scale(coord_t,std::pair<coord_t,coord_t> center){
 
 }
 
-void::Polyline::resize(coord_t){
+void::Polyline::resize(coord_t length,coord_t width,std::pair<coord_t,coord_t> center){
 
 }
 
-void Polyline::rotate(coord_t){
+void Polyline::rotate(coord_t,std::pair<coord_t,coord_t> center){
 
 }
 
