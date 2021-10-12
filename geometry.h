@@ -165,6 +165,7 @@ public:
     std::ostream& print(std::ostream& out = std::cout) const override;
 };
 
+
 #endif // GEOMETRY_H
 
 
