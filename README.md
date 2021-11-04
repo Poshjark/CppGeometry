@@ -5,4 +5,4 @@ This program is planned to execute following functions:
 3) Show plot(drawing) of this objects.
 4) Generate G-code (My cnc-machine is compatible with .plt extension, so it's preferred)
 
-Though g-code generation is my main subject, because it's not comfortable to open specific applications just to draw few squares or make control program for cutting stripes.
+Though g-code generation has last place in functions list it's my main subject, because it's not comfortable to open specific applications just to draw few squares or make control program for cutting stripes.
